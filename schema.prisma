@@ -1,0 +1,117 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialActions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Property {
+  id          Int     @id @default(autoincrement())
+  uuid        String  @unique @default(cuid())
+  object_id   Int
+  object_type String
+  prop_group  String
+  prop_key    String
+  prop_value  String?
+  prop_status Int?
+
+  @@unique([object_id, object_type, prop_group, prop_key], name: "object_property")
+}
+
+model Content {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique @default(cuid())
+  language_id     Int      @default(1)
+  object_id       Int
+  object_type     String
+  title           String?
+  description     String?
+  seo_title       String?
+  seo_description String?
+  createdAt       DateTime @default(now())
+
+  @@unique([language_id, object_id, object_type], name: "object_content")
+}
+
+model Post {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(cuid())
+  post_type    String
+  title        String?
+  description  String?
+  image        String?
+  slug         String   @unique @default(cuid())
+  createdAt    DateTime @default(now())
+  link_button1 String?
+  link_button2 String?
+  text_button1 String?
+  text_button2 String?
+}
+
+model Product {
+  id             Int      @id @default(autoincrement())
+  uuid           String   @unique @default(cuid())
+  title          String?
+  description    String?
+  slug           String   @unique
+  rate           Float?
+  createdAt      DateTime @default(now())
+  currencyRate   Float?
+  currencySymbol String?
+}
+
+model Account {
+  id                 Int      @id @default(autoincrement())
+  uuid               String   @unique @default(cuid())
+  userId             Int
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  oauth_token_secret String?
+  oauth_token        String?
+  createdAt          DateTime @default(now())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           Int       @id @default(autoincrement())
+  uuid         String    @unique @default(cuid())
+  sessionToken String    @unique
+  userId       Int
+  expires      DateTime?
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  uuid          String    @unique @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

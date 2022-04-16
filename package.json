@@ -1,0 +1,45 @@
+{
+  "name": "ganasafi",
+  "version": "1.1.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p $PORT",
+    "lint": "next lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guillebacigalupo/ganasafi.git"
+  },
+  "dependencies": {
+    "@next-auth/prisma-adapter": "^0.5.4",
+    "@premieroctet/next-crud": "^1.2.0",
+    "@prisma/client": "^3.12.0",
+    "axios": "^0.21.4",
+    "bootstrap": "^5.1.3",
+    "busboy": "^0.3.1",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^10.0.0",
+    "file-loader": "^6.2.0",
+    "html5-file-selector": "^2.1.0",
+    "js-cookie": "^3.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "mt4-zmq-bridge": "^1.2.0",
+    "next": "^12.1.5",
+    "next-auth": "^3.29.1",
+    "nodemailer": "^6.7.3",
+    "pm2": "^5.2.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-dropzone-uploader": "^2.11.0",
+    "react-google-recaptcha": "^2.1.0",
+    "react-responsive": "^9.0.0-beta.6",
+    "reactstrap": "^8.10.1",
+    "yarn": "^1.22.18"
+  },
+  "devDependencies": {
+    "eslint": "7.32.0",
+    "eslint-config-next": "11.1.0",
+    "prisma": "^3.12.0"
+  }
+}
