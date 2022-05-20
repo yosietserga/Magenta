@@ -1,27 +1,92 @@
-import React, { useState, useEffect, memo, useRef } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
+import { StoreContext } from "../../../context/store";
 import AdminContainer from "../layout/container";
-import { log, encrypt, decrypt, getCookie } from "../../../utils/common";
+import { log, encrypt } from "../../../utils/common";
 import Link from "next/link";
 import CheckIcon from "../../../components/ui/icons/check";
+import NextBreadcrumbs from "../../../components/ui/breadcrumbs";
 import LoadingIcon from "../../../components/ui/icons/loading";
 import UIModal from "../../../components/ui/modal";
 import {
-  Row,
-  Col,
   Form,
   FormGroup,
   Label,
   Button,
   Input,
-  FormText,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from "reactstrap";
+
+const DD = (props) => {
+
+  if (typeof props?.id == "undefined") {
+    throw new Error("Must pass ID for DropDown Component");
+  }
+
+  if (typeof props?.handler !== "function") {
+    throw new Error(
+      "The handler must be a function callable for DropDown Component"
+    );
+  }
+  
+  if (!Array.isArray( props?.options ) || props?.options.length == 0) {
+    throw new Error(
+      "Options must be an Array and has to be filled for DropDown Component"
+    );
+  }
+  
+  const store = React.useContext(StoreContext);
+  const [status, setStatus] = React.useState(false);
+  const [selected, setSelected] = React.useState("Grupo de Usuario");
+
+  const { id, handler, options } = props;
+  const __id = "dropdownOpen" + id;
+
+  const toggleDD = (e) => {
+    setStatus(!status);
+  };
+
+  const handleChange = (e) => {
+    handler(e);
+    setSelected(e.currentTarget.textContent);
+  }
+
+  React.useEffect(() => {
+    if (props.selected) {
+      options.map((item) => {
+        if (item.value === props.selected) {
+          setSelected(item.label);
+        }
+      });
+    }
+  }, [props, options, setSelected]);
+
+  const items = options.map(item => {
+    return (<DropdownItem key={__id+item.value} value={item.value} onClick={(e) => handleChange(e)}>{item.label}</DropdownItem>);
+  });
+  
+  return (
+    <Dropdown isOpen={status} toggle={toggleDD} id={__id}>
+      <DropdownToggle caret>{selected}</DropdownToggle>
+      <DropdownMenu id={id}>
+        {items}
+      </DropdownMenu>
+    </Dropdown>
+  );
+}
 
 const actions = {
   create: {
     children: function UIForm(props) {
-      const handleName = (e) => {
-        props.setName(e.currentTarget.value);
+      const handleFirstName = (e) => {
+        props.setFirstName(e.currentTarget.value);
+      };
+
+      const handleLastName = (e) => {
+        props.setLastName(e.currentTarget.value);
       };
 
       const handleEmail = (e) => {
@@ -31,6 +96,17 @@ const actions = {
       const handlePassword = (e) => {
         props.setPassword(e.currentTarget.value);
       };
+
+      const handleUserGroup = (e) => {
+        props.setUserGroup(e.currentTarget.value);
+      };
+
+      const options = props.userGroups.map(v => {
+        return {
+          label:v.name,
+          value:v.id
+        }
+      });
 
       return (
         <Form>
@@ -43,14 +119,33 @@ const actions = {
           )}
           <hr />
           <FormGroup>
-            <Label for="name">Nombre</Label>
+            <DD
+              id="UserForm"
+              handler={handleUserGroup}
+              options={options}
+              selected={props.userGroupId ?? false}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="firstname">Nombre</Label>
             <Input
               type="name"
-              name="name"
-              id="name"
-              value={props.name}
-              onChange={handleName}
-              placeholder="Ingresa tu nombre"
+              name="firstname"
+              id="firstname"
+              value={props.firstname}
+              onChange={handleFirstName}
+              placeholder="Ingresa tus nombres"
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="lastname">Apellidos</Label>
+            <Input
+              type="name"
+              name="lastname"
+              id="lastname"
+              value={props.lastname}
+              onChange={handleLastName}
+              placeholder="Ingresa tus apellidos"
             />
           </FormGroup>
           <FormGroup>
@@ -99,7 +194,16 @@ const actions = {
     onSubmit: async (e, props) => {
       e.preventDefault();
 
-      const { name, email, password, setEncryptedPwd, setFlag, router } = props;
+      const {
+        firstname,
+        lastname,
+        email,
+        password,
+        userGroupId,
+        setEncryptedPwd,
+        setFlag,
+        router,
+      } = props;
 
       props.setModalContent(<LoadingIcon />);
       props.setModal(true);
@@ -122,9 +226,11 @@ const actions = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
+          firstname,
+          lastname,
           email,
           password: encrypted,
+          userGroupId:parseInt(userGroupId),
         }),
       });
 
@@ -151,7 +257,7 @@ const actions = {
 actions.update.onSubmit = async (e, props) => {
   e.preventDefault();
 
-  const { name, email, password, setFlag, router } = props;
+  const { firstname, lastname, phone, company, email, password, userGroupId, setFlag, router } = props;
 
   props.setModalContent(<LoadingIcon />);
   props.setModal(true);
@@ -164,8 +270,10 @@ actions.update.onSubmit = async (e, props) => {
   }
 
   let body = {};
-  body.name = name;
+  body.firstname = firstname;
+  body.lastname = lastname;
   body.email = email;
+  body.userGroupId = parseInt(userGroupId);
   if (password) {
     body.password = encrypt(password);
   }
@@ -197,19 +305,29 @@ actions.update.onSubmit = async (e, props) => {
 actions.update.children = actions.create.children;
 
 export default function Users(props) {
+  const store = React.useContext(StoreContext);
+
   const router = useRouter();
   const { children } = actions[props.action];
 
   const [flag, setFlag] = useState("success");
   const [error, setError] = useState("No hay conexión con el servidor");
-  const [name, setName] = useState(
-    props.action == "update" && !!props?.data?.name ? props.data.name : ""
+  const [firstname, setFirstName] = useState(
+    props.action == "update" && !!props?.data?.firstname ? props.data.firstname : ""
+  );
+  const [lastname, setLastName] = useState(
+    props.action == "update" && !!props?.data?.lastname ? props.data.lastname : ""
   );
   const [email, setEmail] = useState(
     props.action == "update" && !!props?.data?.email ? props.data.email : ""
   );
   const [password, setPassword] = useState("");
   const [encryptedPwd, setEncryptedPwd] = useState("");
+  const [userGroupId, setUserGroup] = useState(
+    props.action == "update" && !!props?.data?.userGroupId
+      ? props.data.userGroupId
+      : false
+  );
 
   //modal controls
   const [modal, setModal] = useState(false);
@@ -221,14 +339,33 @@ export default function Users(props) {
       props = {
         ...props,
         title: "Crear Usuario",
+        breadcrumbs: [
+          {
+            text: "Dashboard",
+            href: "dashboard",
+          },
+          {
+            text: "Usuarios",
+            href: "users",
+          },
+          {
+            text: "Crear Usuario",
+            href: null,
+          },
+        ],
+        store,
         email,
-        name,
+        firstname,
+        lastname,
         password,
         encryptedPwd,
+        userGroupId,
         setEmail,
-        setName,
+        setFirstName,
+        setLastName,
         setPassword,
         setEncryptedPwd,
+        setUserGroup,
         flag,
         setFlag,
         error,
@@ -243,14 +380,33 @@ export default function Users(props) {
       props = {
         ...props,
         title: "Editar Usuario",
+        breadcrumbs: [
+          {
+            text: "Dashboard",
+            href: "dashboard",
+          },
+          {
+            text: "Users",
+            href: "users",
+          },
+          {
+            text: "Editar Usuario",
+            href: null,
+          },
+        ],
+        store,
         email,
-        name,
+        firstname,
+        lastname,
         password,
         encryptedPwd,
+        userGroupId,
         setEmail,
-        setName,
+        setFirstName,
+        setLastName,
         setPassword,
         setEncryptedPwd,
+        setUserGroup,
         flag,
         setFlag,
         error,
@@ -266,6 +422,8 @@ export default function Users(props) {
 
   return (
     <AdminContainer>
+      <NextBreadcrumbs breadcrumbs={props.breadcrumbs} />
+
       <UIModal
         props={{
           title: "Usuario",
@@ -275,8 +433,7 @@ export default function Users(props) {
           modal,
         }}
       />
-
-      {children(props)}
+      <div className="block">{children(props)}</div>
     </AdminContainer>
   );
 }
@@ -284,10 +441,17 @@ export default function Users(props) {
 export async function getServerSideProps({ params }) {
   const { pid } = params;
 
+  const PORT = process.env.PORT ?? 3000;
+  const baseurl = process.env.BASE_URL + ":" + PORT;
+
   let action = typeof pid == "object" ? pid[0] : pid;
   let id = typeof pid == "object" ? pid[1] : 0;
   let data = {};
 
+  const r_groups = await fetch(baseurl + "/api/usergroups");
+  const userGroups = await r_groups.json();
+
+  //TODO:install this in a middleware to check permissions
   const allowed = ['create', 'update'];
   if (!allowed.includes( action )) {
     return {
@@ -299,8 +463,19 @@ export async function getServerSideProps({ params }) {
   }
   
   if (action == "update") {
-  const PORT = process.env.PORT ?? 3000;
-  const baseurl = process.env.BASE_URL + ":" + PORT;
+    data = await global.db.user.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        sessions: true, // All sessions for this user
+        user_group: true, // User group of this ser
+        profiles: true, // All profiles bound with this user
+        accounts: true, // All accounts bound with this user
+      },
+    });
+    console.log({data});
+
     let r = await fetch(baseurl + "/api/users/" + id, {
       method: "GET",
       headers: {
@@ -308,14 +483,15 @@ export async function getServerSideProps({ params }) {
       },
     });
     if (r.status < 300) {
-      data = await r.json();
+      //data = await r.json();
     }
   }
 
   return {
     props: {
       action,
-      data,
+      data:JSON.parse(JSON.stringify(data)),
+      userGroups,
     },
   };
 }

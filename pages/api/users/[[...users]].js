@@ -5,6 +5,6 @@ import NextCrud, { PrismaAdapter } from "@premieroctet/next-crud";
 export default NextCrud({
   resourceName: "users", // Same as your folder name
   adapter: new PrismaAdapter({
-    modelName: "user", // Prisma model name, must match the one generated in your prisma client
+    modelName: "User", // Prisma model name, must match the one generated in your prisma client
   }),
 });

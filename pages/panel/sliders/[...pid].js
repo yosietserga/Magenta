@@ -1,12 +1,12 @@
 import React, { useState, useEffect, memo, useRef } from "react";
 import { useRouter } from "next/router";
 import AdminContainer from "../layout/container";
-import { log, encrypt, decrypt, getCookie } from "../../../utils/common";
 import Link from "next/link";
 import CheckIcon from "../../../components/ui/icons/check";
 import LoadingIcon from "../../../components/ui/icons/loading";
+import NextBreadcrumbs from "../../../components/ui/breadcrumbs";
 import UIModal from "../../../components/ui/modal";
-import { Row, Col, Form, FormGroup, Label, Button, Input } from "reactstrap";
+import { Form, FormGroup, Label, Button, Input } from "reactstrap";
 
 import "react-dropzone-uploader/dist/styles.css";
 import Dropzone from "react-dropzone-uploader";
@@ -21,22 +21,6 @@ const actions = {
 
       const handleDesc = (e) => {
         props.setDesc(e.currentTarget.value);
-      };
-
-      const handleLinkButton1 = (e) => {
-        props.setLinkButton1(e.currentTarget.value);
-      };
-
-      const handleLinkButton2 = (e) => {
-        props.setLinkButton2(e.currentTarget.value);
-      };
-
-      const handleTextButton1 = (e) => {
-        props.setTextButton1(e.currentTarget.value);
-      };
-
-      const handleTextButton2 = (e) => {
-        props.setTextButton2(e.currentTarget.value);
       };
 
       return (
@@ -80,46 +64,6 @@ const actions = {
               onChange={handleDesc}
             ></textarea>
           </FormGroup>
-          <FormGroup>
-            <Label for="linkButton1">Link Button 1</Label>
-            <Input
-              type="url"
-              name="linkButton1"
-              id="linkButton1"
-              value={props.linkButton1}
-              onChange={handleLinkButton1}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="textButton1">Text Button 1</Label>
-            <Input
-              type="text"
-              name="textButton1"
-              id="textButton1"
-              value={props.textButton1}
-              onChange={handleTextButton1}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="linkButton2">Link Button 2</Label>
-            <Input
-              type="url"
-              name="linkButton2"
-              id="linkButton2"
-              value={props.linkButton2}
-              onChange={handleLinkButton2}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="textButton2">Text Button 2</Label>
-            <Input
-              type="text"
-              name="textButton2"
-              id="textButton2"
-              value={props.textButton2}
-              onChange={handleTextButton2}
-            />
-          </FormGroup>
           <hr />
           {props.flag == "error" && (
             <>
@@ -159,10 +103,6 @@ const actions = {
           description: props.desc,
           image: props.image,
           post_type: "slider",
-          link_button1: props.linkButton1,
-          text_button1: props.textButton1,
-          link_button2: props.linkButton2,
-          text_button2: props.textButton2,
         }),
       });
 
@@ -356,6 +296,20 @@ export default function Products(props) {
     ...props,
 
     title,
+    breadcrumbs: [
+      {
+        text: "Dashboard",
+        href: "dashboard",
+      },
+      {
+        text: "Sliders",
+        href: "sliders",
+      },
+      {
+        text: "Editar Slider",
+        href: null,
+      },
+    ],
     setTitle,
 
     desc,
@@ -407,6 +361,7 @@ export default function Products(props) {
 
   return (
     <AdminContainer>
+      <NextBreadcrumbs breadcrumbs={props.breadcrumbs} />
       <UIModal
         props={{
           title: "Slider",
@@ -416,8 +371,11 @@ export default function Products(props) {
           modal,
         }}
       />
-      <FileUploadComponent setImage={setImage} />
-      {children(props)}
+      <div className="block">
+        <FileUploadComponent setImage={setImage} />
+      </div>
+
+      <div className="block">{children(props)}</div>
     </AdminContainer>
   );
 }

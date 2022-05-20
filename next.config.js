@@ -6,5 +6,6 @@ module.exports = {
 
     return config;
   },
+  experimental: { images: { layoutRaw: true } },
   reactStrictMode: true,
 };

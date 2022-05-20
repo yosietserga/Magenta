@@ -1,80 +1,75 @@
-import React, { useState, useEffect, memo } from "react";
+import React from "react";
+import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAlignLeft, faSignOut } from "@fortawesome/free-solid-svg-icons";
 import {
-  Collapse,
-  Navbar,
-  NavbarToggler,
-  NavbarBrand,
-  Nav,
-  NavItem,
-  NavLink,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  NavbarText,
+  Button,
 } from "reactstrap";
+import { getCookie, removeCookie, log } from "../../../utils/common";
 import Img from "../../../components/image";
+import { StoreContext } from "../../../context/store";
+
+
 
 function NavBar(props) {
   const { session } = props;
+  const [toggle, setToggle] = React.useState(true);
+  const store = React.useContext(StoreContext);
+
+  const handlerToggle = (e) => {
+    setToggle(!toggle);
+    store.emit("sidebarToggle", toggle);
+  }
+
+  const signOut = () => {
+    //return;
+    removeCookie("uuid");
+    removeCookie("accessToken");
+    log(getCookie("accessToken"));
+
+    if (typeof window != "undefined") window.location.href = "/login";
+  };
+
+  store.on("sidebarClose", () => {
+    setToggle(false);
+    store.emit("sidebarToggle", false);
+  });
+
   return (
-    <div>
-      <Navbar color="green" dark expand="sm" fixed="top">
-        <NavbarBrand href="/panel">
-          <Img s="logo/logo.png" a="Logo" c="admin-logo" />
-        </NavbarBrand>
-        <NavbarToggler onClick={props.toggle} color="dark" />
-        <Collapse isOpen={props.isOpen} navbar>
-          <Nav className="mr-auto" navbar>
-            <NavItem>
-              <NavLink href="/panel/products">Productos</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href="/panel/sliders">Slider</NavLink>
-            </NavItem>
-            <UncontrolledDropdown nav inNavbar>
-              <DropdownToggle nav caret>
-                Usuarios
-              </DropdownToggle>
-              <DropdownMenu right>
-                <DropdownItem tag="div">
-                  <NavLink href="/panel/users/create" className="text-primary">
-                    Crear Usuario
-                  </NavLink>
-                </DropdownItem>
-                <DropdownItem tag="div">
-                  <NavLink href="/panel/users" className="text-primary">
-                    Lista de Usuarios
-                  </NavLink>
-                </DropdownItem>
-                
-              </DropdownMenu>
-            </UncontrolledDropdown>
-          </Nav>
-          <UncontrolledDropdown inNavbar>
-            <DropdownToggle caret nav className="text-secondary">
-              <NavbarText className="align-self-center text-left font-weight-bold">
-                {session?.user?.name ??  `Mi Cuenta`}
-              </NavbarText>
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem tag="div">
-                <a
-                  href="#"
-                  className="text-dark"
-                  onClick={() => {
-                    props.signOut();
-                  }}
-                >
-                  <i className="fas fa-home"></i>
-                   &nbsp;Cerrar Sesión
+    <>
+      <nav className="bg-brand absolute top-0 left-0 w-full z-10 md:flex-row md:flex-nowrap md:justify-start flex items-center p-4 shadow-md">
+        <div className="w-full mx-auto items-center flex justify-between md:flex-nowrap flex-wrap md:px-1 px-4">
+          <div className="grid gap-3 grid-cols-3">
+            <Button
+              className="w-10 max-w-sm bg-purple border-white"
+              onClick={handlerToggle}
+            >
+              <FontAwesomeIcon icon={faAlignLeft} size="md" />
+            </Button>
+            <div>
+              <Link href="/panel">
+                <a>
+                  <Img
+                    s="logo/logo.png"
+                    a="Logo"
+                    c="admin-logo"
+                    w="120px"
+                    h="40px"
+                  />
                 </a>
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
-        </Collapse>
-      </Navbar>
-    </div>
+              </Link>
+            </div>
+
+            <Button
+              className="w-10 max-w-sm bg-purple border-white"
+              onClick={signOut}
+            >
+              <FontAwesomeIcon icon={faSignOut} size="md" />
+            </Button>
+          </div>
+        </div>
+      </nav>
+    </>
   );
 }
 

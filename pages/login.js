@@ -4,7 +4,9 @@ import Container from "../components/layout/container";
 import { log, encrypt, decrypt, getCookie, setCookie } from "../utils/common";
 import CheckIcon from "../components/ui/icons/check";
 import LoadingIcon from "../components/ui/icons/loading";
+import Slider from "../components/slider";
 import UIModal from "../components/ui/modal";
+import { Button } from "reactstrap";
 
 export default function Login(data) {
   const router = useRouter();
@@ -109,7 +111,6 @@ export default function Login(data) {
     return (
       <Container className="modal-login" pageProps={{ session: 0 }}>
         <UIModal
-
           props={{
             title: "Inicio de Sesión",
             content: modalContent,
@@ -121,7 +122,7 @@ export default function Login(data) {
         <div className="login-area area-padding-2 pt130">
           <div className="container">
             <div className="row">
-              <div className="col-md-offset-3 col-md-6 col-sm-12 col-xs-12">
+              <div className="col-md-offset-3 col-md-3 col-sm-12 col-xs-12">
                 <div className="section-headline text-center">
                   <h3>Iniciar Sesión</h3>
                   <input
@@ -142,12 +143,12 @@ export default function Login(data) {
                     ref={inputPassword}
                   />
                   <br />
-                  <button
+                  <Button
                     className="ab-btn left-ab-btn btn-service"
                     onClick={onSubmit}
                   >
                     Enviar
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { Provider, signIn } from "next-auth/client";
-import { useState, useEffect } from "react";
+import React from "react";
 import Header from "./header";
 import Footer from "./footer";
 
@@ -9,10 +9,10 @@ export default function containerWithAuth({ children, pageProps }) {
   console.log(pageProps);
   const { session } = pageProps;
 
-  console.log({ containerWithAuth__: session });
   if (!session) {
     signIn();
   } else {
+    
     return (
       <Provider
         // Provider options are not required but can be useful in situations where

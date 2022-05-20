@@ -4,12 +4,24 @@ import Link from "next/link";
 import AdminContainer from "../layout/container";
 import CheckIcon from "../../../components/ui/icons/check";
 import LoadingIcon from "../../../components/ui/icons/loading";
+import NextBreadcrumbs from "../../../components/ui/breadcrumbs";
 import UIModal from "../../../components/ui/modal";
-import { Col, Row, Table, Button } from "reactstrap";
+import { Table, Button } from "reactstrap";
 
 export default function Users(props) {
   const { data, error } = props;
   const router = useRouter();
+
+  const breadcrumbs = [
+    {
+      text: "Dashboard",
+      href: "dashboard",
+    },
+    {
+      text: "Usuarios",
+      href: "users",
+    },
+  ];
 
   let Users = [];
 
@@ -35,8 +47,6 @@ export default function Users(props) {
     setUUID(id);
   };
   const handleDelete = async (d) => {
-    console.log(d);
-
     setModalContent(<LoadingIcon />);
     //POST form values
     const res = await fetch("/api/users/" + uuid, {
@@ -67,27 +77,36 @@ export default function Users(props) {
         return (
           <tr key={item.uuid}>
             <th scope="row">
-              <input type="checkbox" className="hidden" name="users[]" value={item.id} />
+              <input
+                type="checkbox"
+                className="hidden"
+                name="users[]"
+                value={item.id}
+              />
             </th>
-            <td>{item.name}</td>
+            <td>{item.firstname+ " " +item.lastname}</td>
             <td>{item.email}</td>
+            <td>{item.userGroup.name}</td>
+            <td>{item.status ? `Active` : `Suspended`}</td>
             <td>
-              <button
+              <Button
                 className="btn btn-default"
                 onClick={(e) => {
                   updateRecord(e, item.id);
                 }}
               >
                 <i className="fa fa-edit"></i>
-              </button>
-              <button
+                Editar
+              </Button>
+              <Button
                 className="btn btn-default"
                 onClick={(e) => {
                   removeRecord(e, item.id);
                 }}
               >
                 <i className="fa fa-trash"></i>
-              </button>
+                Borrar
+              </Button>
             </td>
           </tr>
         );
@@ -109,37 +128,43 @@ export default function Users(props) {
 
   return (
     <AdminContainer>
-      <h1>Usuarios</h1>
+      <NextBreadcrumbs breadcrumbs={breadcrumbs} />
 
-      <UIModal
-        props={{
-          title: modalTitle,
-          content: modalContent,
-          btnAccept: handleDelete,
-          btnCancel: toggle,
-          toggle,
-          modal,
-        }}
-      />
+      <div className="block">
+        <h1>Usuarios</h1>
 
-      <Row>
+        <UIModal
+          props={{
+            title: modalTitle,
+            content: modalContent,
+            btnAccept: handleDelete,
+            btnCancel: toggle,
+            toggle,
+            modal,
+          }}
+        />
+
         <Link href="/panel/users/create" passHref={true}>
           <Button className="btn btn-default" color="primary">
             Crear Usuario
           </Button>
         </Link>
-      </Row>
-      <Table hover>
-        <thead>
-          <tr>
-            <th> </th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>{Users}</tbody>
-      </Table>
+      </div>
+      <div className="block">
+        <Table hover>
+          <thead>
+            <tr>
+              <th> </th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Group</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>{Users}</tbody>
+        </Table>
+      </div>
     </AdminContainer>
   );
 }
@@ -169,6 +194,23 @@ export async function getServerSideProps(ctx) {
   }
 
   let data = await r.json();
+
+  //bind user group data
+  for (let i in data) {
+    const userGroup = await global.db.userGroup.findUnique({
+      where: {
+        id: data[i].userGroupId,
+      }
+    });
+
+    data[i].userGroup = {
+      id:userGroup.id,
+      uuid:userGroup.uuid,
+      name:userGroup.name,
+      grant:userGroup.grant,
+    };
+  }
+
 
   return {
     props: {

@@ -1,89 +1,68 @@
-import React, { useState, useEffect, memo } from "react";
-import { useRouter } from "next/router";
+import React, { useState, useEffect } from "react";
 import {
-  encrypt,
-  decrypt,
   getCookie,
   removeCookie,
-  setCookie,
   log,
 } from "../../../utils/common";
-import { Container, Row, Col } from "reactstrap";
+import { StoreContext } from "../../../context/store";
 import Head from "next/head";
+
 
 /* Components */
 import SideBar from "./sidebar";
 import NavBar from "./navbar";
 
-const storeLayout = {};
-
 function AdminContainer(mainProps) {
-  const router = useRouter();
   const { children } = mainProps;
-  const [session, setSession] = useState();
+  const [isOpen, setOpen] = React.useState(false);
+  const [session, setSession] = useState(false);
+  const store = React.useContext(StoreContext);
 
   const signOut = () => {
     //return;
-    setSession({});
     removeCookie("uuid");
     removeCookie("accessToken");
     log(getCookie("accessToken"));
-    window.location.href = "/login";
+    
+    if (typeof window != "undefined") window.location.href = "/login";
   };
 
   useEffect(() => {
-    fetch("/api/auth/session")
-      .then((resp) => {
-        return resp.json();
-      })
-      .then((data) => {
-        log({ data });
-        if (!data.user.id) {
-          //TODO:logout and clean user data and cookies
-          //redirect to homepage
-          signOut();
-          return;
-        } else {
-          setSession(data);
-        }
-      });
+    try {
+      fetch("/api/auth/session")
+        .then((resp) => {
+          return resp.json();
+        })
+        .then((data) => {
+          log({ data });
+          if (typeof data.user != "undefined" && data.user?.id) {
+            setSession(data.user);
+          } else {
+            setSession(false);
+          }
+        });
+    } catch (err) {
+      console.log(JSON.stringify(err));
+      setSession(false);
+    }
   }, [setSession]);
 
   if (!getCookie("accessToken") || !getCookie("uuid")) {
     signOut();
   }
 
+  store.on("sidebarToggle", (o) => {
+    setOpen(o);
+  });
+
   return (
     <>
       <Head>
-        <title>Admin | Ganasafi</title>
+        <title>Admin | Magenta Capital</title>
 
-        <link rel="icon" href='/favicon.ico' />
+        <link rel="icon" href="/favicon.ico" />
 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-        <link
-          href="/assets/static/css/animate.css"
-          rel="stylesheet"
-          type="text/css"
-        />
-        <link
-          href="/assets/static/css/font-awesome.min.css"
-          rel="stylesheet"
-          type="text/css"
-        />
-        <link
-          href="/assets/static/css/themify-icons.css"
-          rel="stylesheet"
-          type="text/css"
-        />
-        <link
-          href="/assets/static/css/flaticon.css"
-          rel="stylesheet"
-          type="text/css"
-        />
-        <link href="/assets/static/css/font-awesome.min.css" rel="stylesheet" />
-        <link href="/assets/static/css/admin.css" rel="stylesheet" />
       </Head>
       <NavBar
         session={session}
@@ -91,14 +70,13 @@ function AdminContainer(mainProps) {
           signOut();
         }}
       />
-      <Container fluid className="wrapper">
-        <Row>
-          <Col className="wrapper-left">
-            <SideBar session={session} />
-          </Col>
-          <Col className="wrapper-content">{children}</Col>
-        </Row>
-      </Container>
+      <div className="flex overflow-hidden bg-white pt-16">
+        <SideBar session={session} />
+
+        <div id="mainContent" className={(isOpen?"is-open ":"is-close") + `h-full w-full bg-gray-50 relative overflow-y-auto lg:ml-64`}>
+          {children}
+        </div>
+      </div>
     </>
   );
 }

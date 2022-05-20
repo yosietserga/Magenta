@@ -19,8 +19,8 @@ export default function handler(req, res) {
   });
   const mailData = {
     from: req.body.email,
-    to: "informaciones@ganasafi.com.bo",
-    subject: `Ganasafi Contacto From ${req.body.name}`,
+    to: "info@magenta.cl",
+    subject: `Magenta Contacto From ${req.body.name}`,
     text: req.body.message + " | Sent from: " + req.body.email,
     html: `<div>${req.body.message}</div><p>Sent from:${req.body.email}</p>`,
   };

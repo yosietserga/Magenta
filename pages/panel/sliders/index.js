@@ -109,39 +109,43 @@ export default function Products(props) {
     );
   }
 
+  const s = {
+    title:"Sliders",
+  }
+
   return (
     <AdminContainer>
-      <h1>Sliders</h1>
+      <div className="block">
+        <h1 className="text-3xl py-4 border-b mb-10">{s.title}</h1>
 
-      <UIModal
-        props={{
-          title: modalTitle,
-          content: modalContent,
-          btnAccept: handleDelete,
-          btnCancel: toggle,
-          toggle,
-          modal,
-        }}
-      />
+        <UIModal
+          props={{
+            title: modalTitle,
+            content: modalContent,
+            btnAccept: handleDelete,
+            btnCancel: toggle,
+            toggle,
+            modal,
+          }}
+        />
 
-      <Row>
         <Link href="/panel/sliders/create" passHref={true}>
-          <Button className="btn btn-default" color="primary">
-            Crear Slide
-          </Button>
+          <Button variant="primary">Crear Slide</Button>
         </Link>
-      </Row>
-      <Table hover>
-        <thead>
-          <tr>
-            <th> </th>
-            <th>Título</th>
-            <th>Imagen</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>{Products}</tbody>
-      </Table>
+      </div>
+      <div className="block">
+        <Table hover>
+          <thead>
+            <tr>
+              <th> </th>
+              <th>Título</th>
+              <th>Imagen</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>{Products}</tbody>
+        </Table>
+      </div>
     </AdminContainer>
   );
 }

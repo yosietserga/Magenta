@@ -5,7 +5,7 @@ export default function Dashboard() {
         <AdminContainer>
             <h1>Dashboard</h1>
 
-            <p>Bienvenido al administrador de contenidos de GanaSafi. Por favor seleccione una opción del menu.</p>
+            <p>Bienvenido a Magenta Capital. Por favor seleccione una opción del menu.</p>
         </AdminContainer>
     )
 }

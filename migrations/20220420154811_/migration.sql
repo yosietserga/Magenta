@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Account" ADD COLUMN     "status" INTEGER NOT NULL DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE "MTAccount" ADD COLUMN     "status" INTEGER NOT NULL DEFAULT 1;

@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 
 export default function UIModal({ props }) {
-  console.log(props);
-
   return (
     <>
       {props.modal && (

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 //walk through all images into public folder
 function importAll(r) {
   let images = {};
@@ -17,7 +19,7 @@ cacheImages = importAll(
   )
 );
 
-export default function Img({ s, a, c, w }) {
+export default function Img({ s, a, c, w, h, l }) {
   /*
   let subfolders = s.split('/');
   let basedir = process.env.NEXT_PUBLIC_IMAGE_PATH;
@@ -44,6 +46,8 @@ export default function Img({ s, a, c, w }) {
   c = c ?? "";
   return (
     <>
+      {/*
+
       {!!cacheImages[s] && (
         <img
           className={"ui-image" + (c ? " " : "") + c}
@@ -53,17 +57,27 @@ export default function Img({ s, a, c, w }) {
           width={w ?? ""}
         />
       )}
-
-      {/*
-      {!!cacheImages[s] && (
-        <Image
-        className={c+" ui-image"}
-          src={cacheImages[s].default}
-          layout="fill"
-          alt={a ?? ""}
-        />
-      )}
       */}
+
+      {!!cacheImages[s] && (
+        <div
+          style={{
+            width: `${w ?? "100%"}`,
+            height: `${h ?? "100%"}`,
+            position: "relative",
+          }}
+        >
+          <Image
+            className={"ui-image" + (c ? " " : "") + c}
+            src={cacheImages[s]}
+            layout={l ?? "fill"}
+            alt={a ?? ""}
+            width="100%"
+            height="100%"
+            objectFit="contain"
+          />
+        </div>
+      )}
       {!cacheImages[s] && <small>Image not found: {s}</small>}
     </>
   );

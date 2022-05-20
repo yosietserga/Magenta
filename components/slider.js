@@ -1,7 +1,24 @@
+import React from "react";
 import Script from "next/script";
 import Link from "next/link";
+import Image from "next/image";
 
-export default function Slider({ sliders }) {
+export default function Slider() {
+  
+  const [sliders, setSliders] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch('/api/posts?where={"post_type":"slider"}')
+      .then((r) => r.json())
+      .then((d) => {
+        try {
+          setSliders(d);
+        } catch (error) {
+          console.log(error);
+        }
+      });
+  }, [setSliders]);
+
   return (
     <>
       {/* Start Slider content */}
@@ -42,10 +59,11 @@ export default function Slider({ sliders }) {
 }
 
 export function Slide(props) {
-  const bg =
-    props?.data?.image.length > 0
+
+  const bg = props?.data?.image
       ? { backgroundImage: `url(/uploads/${props.data.image}) !important` }
       : false;
+      
   return (
     <div
       className="slide-area fix"
@@ -61,47 +79,12 @@ export function Slide(props) {
                   <h2 className="title2">
                     {props?.data?.title.length > 0
                       ? props?.data?.title
-                      : `Invierte en Fondos de Inversión`}
+                      : ""}
                   </h2>
                   <p>
                     {props?.data?.description ??
-                      `Los Fondos de Inversión Abiertos se convierten en una
-                      alternativa a través la diversificación de la conformación
-                      de los portafolios de inversión.`}
+                      ""}
                   </p>
-                  <div className="layer-1-3">
-                    <Link
-                      href={
-                        props?.data?.link_button1.length > 0
-                          ? props?.data?.link_button1
-                          : `#`
-                      }
-                    >
-                      <a className="ready-btn left-btn">
-                        {props?.data?.text_button1.length > 0
-                          ? props?.data?.text_button1
-                          : `Simula tu inversión`}
-                      </a>
-                    </Link>
-                    <div className="video-content">
-                      <Link
-                        href={
-                          props?.data?.link_button2.length > 0
-                            ? props?.data?.link_button2
-                            : `#`
-                        }
-                      >
-                        <a className="video-play vid-zone">
-                          <i className="fa fa-play"></i>
-                          <span>
-                            {props?.data?.text_button2.length > 0
-                              ? props?.data?.text_button2
-                              : `Haz tu consulta`}
-                          </span>
-                        </a>
-                      </Link>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

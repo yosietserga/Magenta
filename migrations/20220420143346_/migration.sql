@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "userGroupId" DROP DEFAULT,
+ALTER COLUMN "status" SET DEFAULT 1;
