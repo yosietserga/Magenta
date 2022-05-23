@@ -126,7 +126,7 @@ export default function Login(data) {
             <div className="col-md-offset-3 col-md-4">
               <div className="section-headline text-center">
                 <div className="h-48 w-full">
-                  <Img s="logo/MAGENTA_logo_3.png" c="h-48 w-48" />
+                  <Img s="logo/MAGENTA_logo_3.png" c="w-max" />
                 </div>
                 <h3>Iniciar Sesión</h3>
                 <input

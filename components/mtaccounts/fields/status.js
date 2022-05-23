@@ -1,4 +1,4 @@
-import InputSelect from "../../layout/fields/InputSelect";
+import InputSelect from "../../layout/fields/inputSelect";
 
 export default function FieldStatus(props) {
   const { handler, value } = props;
