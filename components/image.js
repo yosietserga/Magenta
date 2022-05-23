@@ -46,8 +46,6 @@ export default function Img({ s, a, c, w, h, l }) {
   c = c ?? "";
   return (
     <>
-      {/*
-
       {!!cacheImages[s] && (
         <img
           className={"ui-image" + (c ? " " : "") + c}
@@ -57,7 +55,7 @@ export default function Img({ s, a, c, w, h, l }) {
           width={w ?? ""}
         />
       )}
-      */}
+      {/*
 
       {!!cacheImages[s] && (
         <div
@@ -78,6 +76,8 @@ export default function Img({ s, a, c, w, h, l }) {
           />
         </div>
       )}
+      */}
+
       {!cacheImages[s] && <small>Image not found: {s}</small>}
     </>
   );
