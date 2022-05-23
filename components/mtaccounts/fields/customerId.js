@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { store } from "../../../context/store";
-import InputSelect from "../../layout/fields/InputSelect";
+import InputSelect from "../../layout/fields/inputSelect";
 
 export default function FieldCustomer(props) {
   const { handler, value } = props;
