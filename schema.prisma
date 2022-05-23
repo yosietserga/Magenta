@@ -157,13 +157,11 @@ model Customer {
   company         String?
   email           String        @unique
   phone           String?
+  risky           Int?
   status          Int           @default(1)
   createdAt       DateTime      @default(now())
   commission      Int?
   customerGroupId Int
-  risky           Int?
-  setup           Int?
-  workstation     String?
   customer_group  CustomerGroup @relation(fields: [customerGroupId], references: [id], onDelete: Cascade)
   mtaccounts      MTAccount[]
   
@@ -171,7 +169,6 @@ model Customer {
   @@index([company],type:Gist)
   @@index([email],type:Gist)
   @@index([phone],type:Gist)
-  @@index([workstation],type:Gist)
 }
 
 model MTAccount {
@@ -208,6 +205,12 @@ model MTAccount {
   trade_allowed      Int?
   trade_expert       Int?
   trade_mode         Int?
+  risky              Int?
+  setup              Int?
+  workstation        String?
+  platform           String?
+  comments           String?
+  commission         Int?
   mtCreateAt         DateTime?
   customer           Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
   orders             MTOrder[]
@@ -215,6 +218,9 @@ model MTAccount {
   @@index([name],type:Gist)
   @@index([server],type:Gist)
   @@index([company],type:Gist)
+  @@index([workstation],type:Gist)
+  @@index([platform],type:Gist)
+  @@index([comments],type:Gist)
 }
 
 model MTOrder {

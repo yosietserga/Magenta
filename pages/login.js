@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import Container from "../components/layout/container";
 import { log, encrypt, decrypt, getCookie, setCookie } from "../utils/common";
+import Img from "../components/image";
 import CheckIcon from "../components/ui/icons/check";
 import LoadingIcon from "../components/ui/icons/loading";
 import Slider from "../components/slider";
@@ -119,39 +120,42 @@ export default function Login(data) {
             modal,
           }}
         />
-        <div className="login-area area-padding-2 pt130">
-          <div className="container">
-            <div className="row">
-              <div className="col-md-offset-3 col-md-3 col-sm-12 col-xs-12">
-                <div className="section-headline text-center">
-                  <h3>Iniciar Sesión</h3>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Email"
-                    value={email}
-                    onChange={handleEmail}
-                    ref={inputEmail}
-                  />
-                  <br />
-                  <input
-                    type="password"
-                    className="form-control"
-                    placeholder="********"
-                    value={password}
-                    onChange={handlePassword}
-                    ref={inputPassword}
-                  />
-                  <br />
-                  <Button
-                    className="ab-btn left-ab-btn btn-service"
-                    onClick={onSubmit}
-                  >
-                    Enviar
-                  </Button>
+        <div className="container">
+          <div className="login-area row">
+            <div className="col-md-offset-3 col-md-4"> </div>
+            <div className="col-md-offset-3 col-md-4">
+              <div className="section-headline text-center">
+                <div className="h-48 w-full">
+                  <Img s="logo/MAGENTA_logo_3.png" c="h-48 w-48" />
                 </div>
+                <h3>Iniciar Sesión</h3>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Email"
+                  value={email}
+                  onChange={handleEmail}
+                  ref={inputEmail}
+                />
+                <br />
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="********"
+                  value={password}
+                  onChange={handlePassword}
+                  ref={inputPassword}
+                />
+                <br />
+                <Button
+                  className="ab-btn left-ab-btn btn-service"
+                  onClick={onSubmit}
+                >
+                  Enviar
+                </Button>
               </div>
             </div>
+            <div className="col-md-offset-3 col-md-4"> </div>
           </div>
         </div>
       </Container>

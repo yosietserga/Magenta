@@ -159,6 +159,11 @@ export function isset() {
   }
   return true;
 }
+export function ucfirst(str) {
+  str += "";
+  const f = str.charAt(0).toUpperCase();
+  return f + str.substr(1);
+};
 
 //init cookie var just when is in browser
 if (typeof window != 'undefined') setCookie("init", 1);

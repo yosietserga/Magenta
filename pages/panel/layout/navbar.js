@@ -44,7 +44,7 @@ function NavBar(props) {
               className="w-10 max-w-sm bg-purple border-white"
               onClick={handlerToggle}
             >
-              <FontAwesomeIcon icon={faAlignLeft} size="md" />
+              <FontAwesomeIcon icon={faAlignLeft} size="sm" />
             </Button>
             <div>
               <Link href="/panel">
@@ -64,7 +64,7 @@ function NavBar(props) {
               className="w-10 max-w-sm bg-purple border-white"
               onClick={signOut}
             >
-              <FontAwesomeIcon icon={faSignOut} size="md" />
+              <FontAwesomeIcon icon={faSignOut} size="sm" />
             </Button>
           </div>
         </div>

@@ -35,6 +35,7 @@ const MENUS = [
     label: "Cuentas MT",
     icon: "fas fa-clone",
   },
+  /*
   {
     name: "sliders",
     as: "content",
@@ -42,6 +43,7 @@ const MENUS = [
     label: "Slider",
     icon: "fas fa-bullseye",
   },
+  */
   {
     name: "users",
     as: "users",
@@ -100,7 +102,7 @@ function SideBar(props) {
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex-1 px-3 divide-y space-y-1">
               <div className="wrapper-list-group">
-                <ul flush className="list-group-nav-left" tag="div">
+                <ul flush="true" className="list-group-nav-left" tag="div">
                   <li key="sidebar-search">
                     <form action="#" method="GET">
                       <label htmlFor="mobile-search" className="sr-only">
@@ -137,7 +139,7 @@ function SideBar(props) {
                     return (
                       <li
                         key={`l${k}:${item.label}:${item.as}`}
-                        active={isActive}
+                        active={`${isActive}`}
                         tag={item.as}
                         href={item.href}
                       >

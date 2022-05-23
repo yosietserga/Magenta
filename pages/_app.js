@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 //db wrapper 
+import { useEffect, useState } from "react";
 import { PrismaClient } from "@prisma/client";
 
 if (typeof window === "undefined") {
@@ -18,8 +19,17 @@ const DisableSSR = ({ children }) => {
 //Context
 import { StoreProvider } from "../context/store";
 function MyApp({ Component, pageProps }) {
-  const port = process.env.PORT ?? 3000;
-  pageProps.port = port;
+  const [showChild, setShowChild] = useState(false);
+  useEffect(() => {
+    setShowChild(true);
+  }, []);
+
+  if (!showChild) {
+    return null;
+  }
+
+  pageProps.port = process.env.PORT ?? 3000;
+
   return (
     <>
       <DisableSSR>

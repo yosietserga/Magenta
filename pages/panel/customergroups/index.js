@@ -124,38 +124,36 @@ export default function CustomerGroups(props) {
     <AdminContainer>
       <NextBreadcrumbs breadcrumbs={breadcrumbs} />
       <div className="block">
+        <h1>Grupos de Clientes</h1>
 
-      <h1>Grupos de Usuarios</h1>
-
-      <UIModal
-        props={{
-          title: modalTitle,
-          content: modalContent,
-          btnAccept: handleDelete,
-          btnCancel: toggle,
-          toggle,
-          modal,
-        }}
-      />
+        <UIModal
+          props={{
+            title: modalTitle,
+            content: modalContent,
+            btnAccept: handleDelete,
+            btnCancel: toggle,
+            toggle,
+            modal,
+          }}
+        />
 
         <Link href="/panel/customergroups/create" passHref={true}>
           <Button className="btn btn-default" color="primary">
-            Crear Grupo de Usuarios
+            Crear Grupo de Clientes
           </Button>
         </Link>
       </div>
       <div className="block">
-
-      <Table hover>
-        <thead>
-          <tr>
-            <th> </th>
-            <th>Nombre</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>{CustomerGroups}</tbody>
-      </Table>
+        <Table hover>
+          <thead>
+            <tr>
+              <th> </th>
+              <th>Nombre</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>{CustomerGroups}</tbody>
+        </Table>
       </div>
     </AdminContainer>
   );

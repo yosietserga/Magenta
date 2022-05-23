@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import AdminContainer from "../layout/container";
-import { log, encrypt } from "../../../utils/common";
+import { log, encrypt, ucfirst, isset } from "../../../utils/common";
 import Link from "next/link";
 import NextBreadcrumbs from "../../../components/ui/breadcrumbs";
 import CheckIcon from "../../../components/ui/icons/check";
@@ -18,6 +18,20 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "reactstrap";
+
+import InputText from "../../../components/layout/fields/inputText";
+import FieldCustomer from "../../../components/mtaccounts/fields/customerId";
+import FieldRisk from "../../../components/mtaccounts/fields/risk";
+import FieldComments from "../../../components/mtaccounts/fields/comments";
+import FieldPlatform from "../../../components/mtaccounts/fields/platform";
+import FieldWorkstation from "../../../components/mtaccounts/fields/workstation";
+import FieldCommission from "../../../components/mtaccounts/fields/commission";
+import FieldFirstname from "../../../components/mtaccounts/fields/firstname";
+import FieldStatus from "../../../components/mtaccounts/fields/status";
+import FieldLastname from "../../../components/mtaccounts/fields/lastname";
+import FieldServer from "../../../components/mtaccounts/fields/server";
+import FieldUsername from "../../../components/mtaccounts/fields/username";
+import FieldPassword from "../../../components/mtaccounts/fields/password";
 
 const DD = (props) => {
 
@@ -96,21 +110,50 @@ const actions = {
   },
   create: {
     children: function UIForm(props) {
-      const handleName = (e) => {
-        props.setName(e.currentTarget.value);
+      
+      const handler = (value, key) => {
+        if (
+          isset(props[`set${ucfirst(key)}`]) &&
+          typeof props[`set${ucfirst(key)}`] === "function"
+        ) {
+          props[`set${ucfirst(key)}`](value);
+        } else {
+          //TODO: thrown error
+        }
       };
 
-      const handleUsername = (e) => {
-        props.setUsername(e.currentTarget.value);
-      };
-
-      const handleServer = (e) => {
-        props.setServer(e.currentTarget.value);
-      };
-
-      const handlePassword = (e) => {
-        props.setPassword(e.currentTarget.value);
-      };
+      const disabledFields = [
+        {
+          label: "Account Name",
+          field: "name",
+          key: "name",
+          value: props?.data?.name ?? "",
+        },
+        {
+          label: "Account Balance",
+          field: "balance",
+          key: "balance",
+          value: props?.data?.balance ?? "",
+        },
+        {
+          label: "Account Number",
+          field: "account",
+          key: "account",
+          value: props?.data?.account ?? "",
+        },
+        {
+          label: "Account Company",
+          field: "company",
+          key: "company",
+          value: props?.data?.company ?? "",
+        },
+        {
+          label: "Account Currency",
+          field: "currency",
+          key: "currency",
+          value: props?.data?.currency ?? "",
+        },
+      ];
 
       return (
         <Form>
@@ -122,50 +165,61 @@ const actions = {
             </>
           )}
           <hr />
-          <FormGroup>
-            <Label for="name">Nombre</Label>
-            <Input
-              type="name"
-              name="name"
-              id="name"
-              value={props.name}
-              onChange={handleName}
-              placeholder="Ingresa tu nombre"
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="server">Servidor</Label>
-            <Input
-              type="server"
-              name="server"
-              id="server"
-              value={props.server}
-              onChange={handleServer}
-              placeholder="Ejemplo: Swissquote-Demo1"
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="username">Username</Label>
-            <Input
-              type="username"
-              name="username"
-              id="username"
-              value={props.username}
-              onChange={handleUsername}
-              placeholder="0123456789"
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="password">Password</Label>
-            <Input
-              type="password"
-              name="password"
-              id="password"
-              value={props.password}
-              onChange={handlePassword}
-              placeholder="********"
-            />
-          </FormGroup>
+          <FieldCustomer value={props.customerId} handler={handler} />
+          <FieldFirstname value={props.firstname} handler={handler} />
+          <FieldLastname value={props.lastname} handler={handler} />
+          <FieldPlatform value={props.platform} handler={handler} />
+          <FieldWorkstation value={props.workstation} handler={handler} />
+          <FieldRisk value={props.risk} handler={handler} />
+          <FieldCommission value={props.commission} handler={handler} />
+          <FieldStatus value={props.status} handler={handler} />
+
+          <FieldServer value={props.server} handler={handler} />
+          <FieldUsername value={props.username} handler={handler} />
+          <FieldPassword value={props.password} handler={handler} />
+          
+          <FieldComments value={props.comments} handler={handler} />
+          {disabledFields.map((field) => {
+            return (
+              <>
+                <InputText
+                  handler={() => {}}
+                  key={field.key}
+                  value={field.value ?? ""}
+                  label={field.label}
+                  fieldName={field.field}
+                  disabled="true"
+                />
+              </>
+            );
+          })}
+          {/**
+           * 
+  createdAt          DateTime  @default(now())
+  status             Int       @default(1)
+  commission_blocked Decimal?  @db.Decimal(10, 2)
+  credit             Decimal?  @db.Decimal(10, 2)
+  customerId         Int
+  equity             Decimal?  @db.Decimal(10, 2)
+  leverage           Int?
+  liabilities        Decimal?  @db.Decimal(10, 2)
+  limit_orders       Int?
+  login              String?
+  margin             Decimal?  @db.Decimal(10, 2)
+  margin_assets      Decimal?  @db.Decimal(10, 2)
+  margin_free        Decimal?  @db.Decimal(10, 2)
+  margin_initial     Decimal?  @db.Decimal(10, 2)
+  margin_level       Decimal?  @db.Decimal(10, 2)
+  margin_maintenance Decimal?  @db.Decimal(10, 2)
+  margin_so_call     Decimal?  @db.Decimal(10, 2)
+  margin_so_mode     Int?
+  margin_so_so       Decimal?  @db.Decimal(10, 2)
+  profit             Decimal?  @db.Decimal(10, 2)
+  trade_allowed      Int?
+  trade_expert       Int?
+  trade_mode         Int?
+  mtCreateAt         DateTime?
+           */}
           <hr />
           {props.flag == "error" && (
             <>
@@ -191,10 +245,15 @@ const actions = {
       e.preventDefault();
 
       const {
-        name,
+        firstname,
+        lastname,
         username,
         password,
         server,
+        status,
+        commission,
+        risk,
+        customerId,
         setEncryptedPwd,
         setFlag,
         router,
@@ -221,10 +280,15 @@ const actions = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
+          firstname,
+          lastname,
           username,
           password: encrypted,
           server,
+          status,
+          risk,
+          commission,
+          customerId,
         }),
       });
 
@@ -251,7 +315,19 @@ const actions = {
 actions.update.onSubmit = async (e, props) => {
   e.preventDefault();
 
-  const { name, username, password, server, setFlag, router } = props;
+  const {
+    firstname,
+    lastname,
+    username,
+    password,
+    server,
+    status,
+    commission,
+    risk,
+    customerId,
+    setFlag,
+    router,
+  } = props;
 
   props.setModalContent(<LoadingIcon />);
   props.setModal(true);
@@ -264,9 +340,14 @@ actions.update.onSubmit = async (e, props) => {
   }
 
   let body = {};
-  body.name = name;
+  body.firstname = firstname;
+  body.lastname = lastname;
   body.username = username;
   body.server = server;
+  body.status = status;
+  body.commission = commission;
+  body.risk = risk;
+  body.customerId = customerId;
   if (password) {
     body.password = encrypt(password);
   }
@@ -303,8 +384,25 @@ export default function MTAccounts(props) {
 
   const [flag, setFlag] = useState("success");
   const [error, setError] = useState("No hay conexión con el servidor");
-  const [name, setName] = useState(
-    props.action == "update" && !!props?.data?.name ? props.data.name : ""
+  const [customer, setCustomer] = useState(
+    props.action == "update" && !!props?.data?.customer
+      ? props.data.customer
+      : {}
+  );
+  const [customerId, setCustomerId] = useState(
+    props.action == "update" && !!props?.data?.customerId
+      ? props.data.customerId
+      : 0
+  );
+  const [firstname, setFirstName] = useState(
+    props.action == "update" && !!props?.data?.firstname
+      ? props.data.firstname
+      : ""
+  );
+  const [lastname, setLastName] = useState(
+    props.action == "update" && !!props?.data?.lastname
+      ? props.data.lastname
+      : ""
   );
   const [username, setUsername] = useState(
     props.action == "update" && !!props?.data?.username ? props.data.username : ""
@@ -317,39 +415,77 @@ export default function MTAccounts(props) {
       : false
   );
 
+  const [commission, setCommission] = useState(
+    props.action == "update" && !!props?.data?.commission
+      ? props.data.commission
+      : 0
+  );
+
+  const [risk, setRisk] = useState(
+    props.action == "update" && !!props?.data?.risk
+      ? props.data.risk
+      : 0
+  );
+
+  const [status, setStatus] = useState(
+    props.action == "update" && !!props?.data?.status
+      ? props.data.status
+      : 0
+  );
+
   //modal controls
   const [modal, setModal] = useState(false);
   const [modalContent, setModalContent] = useState("");
   const toggle = () => setModal(!modal);
 
+  const __props = {
+    ...props,
+
+    data: props?.data ?? null,
+
+    customer,
+    setCustomer,
+    customerId,
+    setCustomerId,
+
+    username,
+    lastname,
+    firstname,
+    password,
+    encryptedPwd,
+    server,
+    status,
+    risk,
+    commission,
+    setRisk,
+    setCommission,
+    setStatus,
+    setUsername,
+    setLastName,
+    setFirstName,
+    setPassword,
+    setEncryptedPwd,
+    setServer,
+    flag,
+    setFlag,
+    error,
+    setError,
+    router,
+    toggle,
+    setModalContent,
+    setModal,
+  };
+
   switch (props.action) {
     case "create":
       props = {
-        ...props,
+        ...__props,
         title: "Crear Cuenta",
-        username,
-        name,
-        password,
-        encryptedPwd,
-        server,
-        setUsername,
-        setName,
-        setPassword,
-        setEncryptedPwd,
-        setServer,
-        flag,
-        setFlag,
-        error,
-        setError,
-        router,
-        toggle,
-        setModalContent,
-        setModal,
       };
       break;
     case "update":
       props = {
-        ...props,
+        ...__props,
         title: "Editar Cuenta",
         breadcrumbs: [
           {
@@ -365,30 +501,11 @@ export default function MTAccounts(props) {
             href: null,
           },
         ],
-        username,
-        name,
-        password,
-        encryptedPwd,
-        server,
-        setUsername,
-        setName,
-        setPassword,
-        setEncryptedPwd,
-        setServer,
-        flag,
-        setFlag,
-        error,
-        setError,
-        router,
-        toggle,
-        setModalContent,
-        setModal,
       };
-      break;
       break;
     case "chart":
       props = {
-        ...props,
+        ...__props,
         title: "Monitor Cuenta: " + username + " <" + server + ">",
         breadcrumbs: [
           {
@@ -404,20 +521,6 @@ export default function MTAccounts(props) {
             href: null,
           },
         ],
-        username,
-        name,
-        password,
-        encryptedPwd,
-        server,
-        setUsername,
-        flag,
-        setFlag,
-        error,
-        setError,
-        router,
-        toggle,
-        setModalContent,
-        setModal,
       };
       break;
   }
@@ -462,7 +565,7 @@ export async function getServerSideProps({ params }) {
   }
   
   if (action == "update") {
-    let r = await fetch(baseurl + "/api/mtaccounts/" + id, {
+    let r = await fetch(baseurl + "/api/mtaccounts/" + id +"?include=customer", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

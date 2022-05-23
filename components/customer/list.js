@@ -3,7 +3,6 @@ import DataGrid, {
   SelectColumn,
   TextEditor,
   SelectCellFormatter,
-  textEditorClassname,
 } from "react-data-grid";
 import { StoreContext } from "../../context/store";
 import { buildFiltersQueryString } from "../../libs/src/customers";
@@ -106,19 +105,19 @@ export default function MTCustomersList( props ) {
         let firstRow = o[0];
         let cols = Object.keys(firstRow).map((item) => {
           let colObject = { key: item, name: item };
+          
           switch (item) {
             case "risky":
               colObject.width = 90;
 
               colObject.formatter = (p) => {
-                return <>{`${risks[p.row.risky ?? 1]}`}</>;
+                return <>{`${risks[p.row.risky ?? 1] ?? ""}`}</>;
               };
 
               colObject.editor = (p) => (
                 <Input
                   type="select"
                   autoFocus
-                  className={textEditorClassname}
                   value={p.row.risky ?? 0}
                   onChange={(e) => {
                     handleRowChange(e.target.value, "risky", p);
@@ -138,23 +137,23 @@ export default function MTCustomersList( props ) {
               };
               break;
             case "commission":
+            case "setup":
               colObject.width = 90;
 
               colObject.formatter = (p) => {
-                return <>{`${p.row.commission ? "Yes" : "No"}`}</>;
+                return <>{`${p.row[item] ? "Yes" : "No"}`}</>;
               };
 
               colObject.editor = (p) => (
                 <Input
                   type="select"
                   autoFocus
-                  className={textEditorClassname}
-                  value={p.row.commission ?? 0}
+                  value={p.row[item] ?? 0}
                   onChange={(e) => {
-                      handleRowChange(e.target.value, "commission", p);
+                    handleRowChange(e.target.value, item, p);
 
-                      p.onRowChange(
-                      { ...p.row, commission: e.target.value },
+                    p.onRowChange(
+                      { ...p.row, [item]: e.target.value },
                       true
                     );
                   }}
@@ -172,12 +171,45 @@ export default function MTCustomersList( props ) {
                 editOnClick: true,
               };
               break;
+            case "status":
+              colObject.width = 90;
+
+              colObject.formatter = (p) => {
+                return <>{`${p.row.status ? "Activado" : "Desactivado"}`}</>;
+              };
+
+              colObject.editor = (p) => (
+                <Input
+                  type="select"
+                  autoFocus
+                  value={p.row.status ?? 0}
+                  onChange={(e) => {
+                    handleRowChange(e.target.value, "status", p);
+
+                    p.onRowChange({ ...p.row, status: e.target.value }, true);
+                  }}
+                >
+                  <option key={0} value={0}>
+                    Desactivado
+                  </option>
+                  <option key={1} value={1}>
+                    Activado
+                  </option>
+                </Input>
+              );
+
+              colObject.editorOptions = {
+                editOnClick: true,
+              };
+              break;
             case "customerGroupId":
               colObject.width = 180;
 
               colObject.formatter = (p) => {
                 return (
-                  <>{`${p.row.customer_group ? p.row.customer_group.name : "Ninguno"}`}</>
+                  <>{`${
+                    p.row.customer_group ? p.row.customer_group.name : "Ninguno"
+                  }`}</>
                 );
               };
 
@@ -185,10 +217,13 @@ export default function MTCustomersList( props ) {
                 <Input
                   type="select"
                   autoFocus
-                  className={textEditorClassname}
-                  value={customergroups.map((group) => {
-                    return p.row.customerGroupId === group.id ? group.name : "Ninguno";
-                  })[0]}
+                  value={
+                    customergroups.map((group) => {
+                      return p.row.customerGroupId === group.id
+                        ? group.name
+                        : "Ninguno";
+                    })[0]
+                  }
                   onChange={(e) => {
                     handleRowChange(e.target.value, "customerGroupId", p);
                     p.onRowChange(
@@ -227,7 +262,6 @@ export default function MTCustomersList( props ) {
                 <Input
                   type="text"
                   autoFocus
-                  className={textEditorClassname}
                   value={p.row[item] ?? ""}
                   onChange={(e) => {
                     if (controlInput) {
@@ -251,6 +285,7 @@ export default function MTCustomersList( props ) {
           return colObject;
         });        
         cols.unshift(SelectColumn);
+        cols.pop();
         setColumns(cols);
         setCustomers(o);
         setRows(memoRows([...rows, ...o]));
@@ -298,7 +333,6 @@ export default function MTCustomersList( props ) {
   }, [store, filters, __filters]);
 
   const handleRowsChange = (r) => {
-    log(r);
     const __customers = Array.from(r).map(rowKey => {
       return parseInt(rowKey.split("_")[1]);
     });
