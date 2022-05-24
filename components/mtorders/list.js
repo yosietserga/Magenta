@@ -19,7 +19,7 @@ import FilterAccount from "./filters/accounts";
 
 
 function rowKeyGetter(row) {
-  return `ticket_${row.ticket}`;
+  return `order_${row?.uuid}`;
 }
 
 export default function MTOrdersList( props ) {

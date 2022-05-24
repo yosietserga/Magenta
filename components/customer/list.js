@@ -312,24 +312,28 @@ export default function MTCustomersList( props ) {
         }
       });
 
-    fetch("/api/customergroups", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((r) => r.json())
-      .then((r) => {
-        if (!empty(r)) {
-          store.set("customergroups", r);
-          store.emit("updateCustomerGroups", r);
-          setCustomerGroups(r);
-        } else {
-          store.set("customergroups", []);
-          store.emit("updateCustomerGroups", []);
-          setCustomerGroups([]);
-        }
-      });
+    try {
+      fetch("/api/customergroups", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((r) => r.json())
+        .then((r) => {
+          if (!empty(r)) {
+            store.set("customergroups", r);
+            store.emit("updateCustomerGroups", r);
+            setCustomerGroups(r);
+          } else {
+            store.set("customergroups", []);
+            store.emit("updateCustomerGroups", []);
+            setCustomerGroups([]);
+          }
+        });
+    } catch (err) {
+      console.log(err);
+    }
   }, [store, filters, __filters]);
 
   const handleRowsChange = (r) => {

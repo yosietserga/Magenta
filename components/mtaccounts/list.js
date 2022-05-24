@@ -2,7 +2,7 @@ import React from "react";
 import DataGrid, { SelectColumn, TextEditor, SelectCellFormatter }  from "react-data-grid";
 import { StoreContext } from "../../context/store";
 import { buildFiltersQueryString } from "../../libs/src/mtorders";
-import { isset, empty, log } from "../../utils/common";
+import { isset, empty, log, isPrimitive, ucfirst } from "../../utils/common";
 import { exportToCsv } from "../../utils/exportFile.ts";
 import { Form, Button, Collapse } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +17,12 @@ import FilterCompany from "./filters/company";
 import FilterMtCreateAt from "./filters/mtCreateAt";
 import FilterCreatedAt from "./filters/createdAt";
 import FilterBalance from "./filters/balance";
+
+function ucfsplit(str) {
+  return ucfirst(ucfirst(str.split("_").join(" "))
+    .match(/[A-Z]+(?![a-z])|[A-Z]?[a-z]+|\d+/g)
+    .join(" "));
+}
 
 function rowKeyGetter(row) {
   if (isset(row?.uuid)) return `account_${row.account}`;
@@ -36,6 +42,11 @@ export default function MTAccountsList( props ) {
   
   const store = React.useContext(StoreContext);
 
+  store.on("updateOrdersTotals", (__totals) => {
+    log("updateOrdersTotals", __totals);
+    setTotals(__totals);
+  });
+  
   const memoRows = rows => {
     const memo = [];
     const resp = [];
@@ -44,9 +55,30 @@ export default function MTAccountsList( props ) {
       if (isNaN(i)) continue;
 
       const r = rows[i];
-      if (!memo.includes(r.uuid)) { 
-          memo.push(r.uuid);
-          resp.push(r);
+
+      if (!memo.includes(r.uuid)) {
+        for (let j in r.customer) {
+          let prefix = "customer_";
+          if (!isNaN(parseInt(j))) continue;
+          
+          r[`${prefix + j}`] = r.customer[j];
+        }
+        
+        for (let j in totals) {
+          let prefix = "totals_";
+          if (!isNaN(parseInt(j))) continue;
+          r[`${prefix + j}`] =
+            !isPrimitive(totals[j])
+              ? JSON.stringify(totals[j])
+              : totals[j];
+        }
+
+        for (let j in r) {
+          r[j] = !isPrimitive(r[j]) ? JSON.stringify(r[j]) : r[j];
+        }
+
+        memo.push(r.uuid);
+        resp.push(r);
       }
     }
     return resp;
@@ -62,10 +94,62 @@ export default function MTAccountsList( props ) {
         setTotals({});
       } else {
         let firstRow = o[0];
-        let cols = Object.keys(firstRow).map((item) => {
-          return { key: item, name: item };
-        });        
+        let cols = [
+          ...Object.keys(firstRow),
+        ]
+          .map((item) => {
+            let colObject = {
+              key: item,
+              name: ucfsplit(item),
+            };
+
+            switch (item) {
+            }
+
+            return colObject;
+            
+          });
+
+        cols.pop();
+
+          
+        let customer_cols = [];
+        for (let item of Object.keys(firstRow["customer"])) {
+          if (!isNaN(parseInt(item))) continue;
+
+          let prefix = "customer_";
+          let colObject = {
+            key: prefix + item,
+            name: ucfsplit(`${prefix + item}`),
+          };
+
+          switch (item) {
+          }
+          customer_cols.push( colObject );
+        }
+          
+        let totals_cols = [
+          ...[],
+          ...Object.keys(totals),
+        ]
+          .map((item) => {
+            let prefix = "totals_";
+            let colObject = {
+              key: prefix + item,
+              name: ucfsplit(`${prefix + item}`),
+            };
+
+            switch (item) {
+            }
+
+            return colObject;
+          });
+
+        cols = [...customer_cols, ...cols, ...totals_cols];
+
         cols.unshift(SelectColumn);
+        
+        log(cols);
         setColumns(cols);
         setAccounts(o);
         setRows(memoRows([...rows, ...o]));
@@ -75,7 +159,7 @@ export default function MTAccountsList( props ) {
   React.useEffect(() => {
     const query = buildFiltersQueryString({...filters, ...__filters}) ?? "";
 
-    fetch("/api/mtaccounts?where=" + query, {
+    fetch("/api/mtaccounts?include=customer&where=" + query, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +178,6 @@ export default function MTAccountsList( props ) {
   }, [store, filters, __filters]);
 
   const handleRowsChange = (r) => {
-    log(r);
     const __accounts = Array.from(r).map(rowKey => {
       return parseInt(rowKey.split("_")[1]);
     });

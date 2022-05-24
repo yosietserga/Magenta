@@ -160,6 +160,7 @@ store.on("updateOrders", (o) => {
     const balance = totalDeposits + totalProfit;
 
     const totals = {
+      account:o.account,
       balance,
 
       grossProfit,

@@ -165,5 +165,13 @@ export function ucfirst(str) {
   return f + str.substr(1);
 };
 
+export function unique(value, index, self) {
+  return self.indexOf(value) === index;
+};
+
+export function isPrimitive(test) {
+  return test !== Object(test);
+}
+
 //init cookie var just when is in browser
 if (typeof window != 'undefined') setCookie("init", 1);
