@@ -412,7 +412,12 @@ export async function getServerSideProps({ params }) {
   const { pid } = params;
 
   const PORT = process.env.PORT ?? 3000;
-  const baseurl = process.env.BASE_URL + ":" + PORT;
+  const baseurl =
+    typeof process.env.VERCEL_ENV != "undefined" &&
+    process.env.VERCEL_ENV == "production"
+      ? process.env.BASE_URL
+      : process.env.BASE_URL + ":" + PORT;
+
 
   let action = typeof pid == "object" ? pid[0] : pid;
   let id = typeof pid == "object" ? pid[1] : 0;

@@ -8,7 +8,12 @@ import { isset, empty, log } from "../../utils/common";
 
 
 const PORT = process.env.PORT ?? 3000;
-const baseurl = process.env.BASE_URL + ":" + PORT;
+
+const baseurl =
+  typeof process.env.VERCEL_ENV != "undefined" &&
+  process.env.VERCEL_ENV == "production"
+    ? process.env.BASE_URL
+    : process.env.BASE_URL + ":" + PORT;
 
 export default function CustomerInfo( props ) {
   const { data } = props;

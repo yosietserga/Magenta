@@ -290,7 +290,12 @@ export default function Products(props) {
   const toggle = () => setModal(!modal);
 
   const PORT = process.env.PORT ?? 3000;
-  const baseurl = process.env.BASE_URL + ":" + PORT;
+  const baseurl =
+    typeof process.env.VERCEL_ENV != "undefined" &&
+    process.env.VERCEL_ENV == "production"
+      ? process.env.BASE_URL
+      : process.env.BASE_URL + ":" + PORT;
+
 
   const __props = {
     ...props,
@@ -398,7 +403,12 @@ export async function getServerSideProps({ params }) {
   }
 
   const PORT = process.env.PORT ?? 3000;
-  const baseurl = process.env.BASE_URL + ":" + PORT;
+  const baseurl =
+    typeof process.env.VERCEL_ENV != "undefined" &&
+    process.env.VERCEL_ENV == "production"
+      ? process.env.BASE_URL
+      : process.env.BASE_URL + ":" + PORT;
+
 
   if (action == "update") {
     let r = await fetch(baseurl + "/api/posts/" + id, {

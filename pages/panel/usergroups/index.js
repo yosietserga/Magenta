@@ -165,7 +165,12 @@ export async function getServerSideProps(ctx) {
   const { req, res, params } = ctx;
 
   const PORT = process.env.PORT ?? 3000;
-  const baseurl = process.env.BASE_URL + ":" + PORT;
+  const baseurl =
+    typeof process.env.VERCEL_ENV != "undefined" &&
+    process.env.VERCEL_ENV == "production"
+      ? process.env.BASE_URL
+      : process.env.BASE_URL + ":" + PORT;
+
   let r = await fetch(baseurl +"/api/usergroups");
   if (r.status === 500) {
     return {
