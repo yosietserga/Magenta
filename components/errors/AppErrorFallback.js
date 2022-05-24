@@ -11,6 +11,7 @@ const sliceErrorStack = (stackTrace = '', numLines = 10) => {
 };
 
 export default function AppErrorFallback({ error, errorInfo, resetErrorBoundary }) {
+  console.log({ error, errorInfo, resetErrorBoundary });
   return (
     <Jumbotron>
       <Alert variant="danger">
