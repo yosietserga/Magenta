@@ -5,8 +5,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgres://tmpthyfotxgtzy:e20bc7ebe79bc8ac299006817d04c5b46e8384d755e8e89e40911235e6bfc81a@ec2-44-196-223-128.compute-1.amazonaws.com:5432/d7m3hmq0dchi7c"
-} 
+  url      = env("DATABASE_URL")
+}
 
 model Property {
   id          Int     @id @default(autoincrement())

@@ -78,7 +78,7 @@ export default function Customers(props) {
     }
   };
   if (typeof error == "undefined") {
-    if (data.length > 0) {
+    if (Array.isArray(data) && data?.length > 0) {
       Customers = data.map((item) => {
         return (
           <tr key={item.uuid}>
