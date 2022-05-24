@@ -193,35 +193,36 @@ export async function getServerSideProps(ctx) {
 
   const PORT = process.env.PORT ?? 3000;
   const baseurl = process.env.BASE_URL + ":" + PORT;
+  console.log(baseurl, PORT);
   try {
-  let r = await fetch(baseurl +"/api/customers");
-  if (r.status === 500) {
+    let r = await fetch(baseurl +"/api/customers");
+    if (r.status === 500) {
+      return {
+        props: {
+          data: [],
+          error: "No hay conexión con el servidor",
+        },
+      };
+    }
+
+    if (r.status === 404) {
+      return {
+        props: {
+          data: [],
+          error: "HTTP 404: Not found /api/customers",
+        },
+      };
+    }
+
+    let data = await r.json();
+
     return {
       props: {
-        data: [],
-        error: "No hay conexión con el servidor",
+        data,
       },
     };
+  } catch (err) {
+    console.log(err);
+    return { props: { data: null }};
   }
-
-  if (r.status === 404) {
-    return {
-      props: {
-        data: [],
-        error: "HTTP 404: Not found /api/customers",
-      },
-    };
-  }
-
-  let data = await r.json();
-
-  return {
-    props: {
-      data,
-    },
-  };
-} catch (err) {
-  console.log(err);
-  return { props: { data: null }};
-}
 }
