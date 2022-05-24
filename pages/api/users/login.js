@@ -9,38 +9,41 @@ import {
 const prisma = new PrismaClient();
 let errorMessage = "";
 const login = async (email, password) => {
-  //email incorrect
-  if (!email || !email.includes("@") || !password) {
-    errorMessage = "Invalid User";
-    return false;
+  try {
+    //email incorrect
+    if (!email || !email.includes("@") || !password) {
+      errorMessage = "Invalid User";
+      return false;
+    }
+
+    //find user into db
+    log("/api/users/login: getting user from db email:"+ email);
+    let user = await prisma.user.findUnique({
+      where: {
+        email
+      },
+    });
+
+    log("db result:", { user });
+    //user not found
+    if (!user) {
+      errorMessage = "User not found";
+      return false;
+    }
+
+    // password incorrect
+    if (typeof user.password == 'undefined' || decrypt(password) != decrypt(user.password)) {
+      errorMessage = "User or Password invalid";
+      return false;
+    }
+
+    //customize specific data to encrypt y pass as access token
+    const accessToken = encrypt(JSON.stringify(user));
+    const response = {...user, accessToken};
+    return response;
+  } catch (err) {
+    console.log(err);
   }
-
-  //find user into db
-  log("/api/users/login: getting user from db email:"+ email);
-  let user = await prisma.user.findUnique({
-    where: {
-      email
-    },
-  });
-
-  log("db result:", { user });
-  //user not found
-  if (!user) {
-    errorMessage = "User not found";
-    return false;
-  }
-
-  // password incorrect
-  if (typeof user.password == 'undefined' || decrypt(password) != decrypt(user.password)) {
-    errorMessage = "User or Password invalid";
-    return false;
-  }
-
-  //customize specific data to encrypt y pass as access token
-  const accessToken = encrypt(JSON.stringify(user));
-  const response = {...user, accessToken};
-  log(["login sucess, reponse: ", JSON.stringify( response )])
-  return response;
 };
 
 export default async function handler(req, res) {
