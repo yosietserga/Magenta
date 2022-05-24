@@ -49,28 +49,33 @@ export default function Customers(props) {
     console.log(d);
 
     setModalContent(<LoadingIcon />);
-    //POST form values
-    const res = await fetch("/api/customers/" + uuid, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        uuid,
-      }),
-    });
+    try {
+      //POST form values
+      const res = await fetch("/api/customers/" + uuid, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uuid,
+        }),
+      });
 
-    //workflow success or fail
-    if (res.status < 300) {
-      setModalContent(<CheckIcon />);
-      refreshData();
-      setTimeout(() => {
-        toggle();
-      }, 1200);
-    } else {
-      setModalContent("No se pudo eliminar, por favor intente de nuevo");
+      //workflow success or fail
+      if (res.status < 300) {
+        setModalContent(<CheckIcon />);
+        refreshData();
+        setTimeout(() => {
+          toggle();
+        }, 1200);
+      } else {
+        setModalContent("No se pudo eliminar, por favor intente de nuevo");
+      }
+      setModal(true);
+    } catch(err) {
+      console.log(err);
+      setModal(false);
     }
-    setModal(true);
   };
   if (typeof error == "undefined") {
     if (data.length > 0) {
@@ -188,6 +193,7 @@ export async function getServerSideProps(ctx) {
 
   const PORT = process.env.PORT ?? 3000;
   const baseurl = process.env.BASE_URL + ":" + PORT;
+  try {
   let r = await fetch(baseurl +"/api/customers");
   if (r.status === 500) {
     return {
@@ -214,4 +220,8 @@ export async function getServerSideProps(ctx) {
       data,
     },
   };
+} catch (err) {
+  console.log(err);
+  return { props: { data: null }};
+}
 }
