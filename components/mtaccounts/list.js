@@ -390,8 +390,8 @@ export default function MTAccountsList( props ) {
             formatter: (p) => {
               return (
                 <>
-                  Insertar este dato aqu'i colapsar'ia la app al procesar muchos
-                  registros debido a que ser'ia una consulta grande a la db
+                  Insertar este dato aqui colapsaria la app al procesar muchos
+                  registros debido a que seria una consulta grande a la db
                   dentro de otra consulta grande
                 </>
               );
@@ -403,8 +403,8 @@ export default function MTAccountsList( props ) {
             formatter: (p) => {
               return (
                 <>
-                  Insertar este dato aqu'i colapsar'ia la app al procesar muchos
-                  registros debido a que ser'ian varias consultas grandes a la
+                  Insertar este dato aqui colapsaria la app al procesar muchos
+                  registros debido a que serian varias consultas grandes a la
                   db dentro de otra consulta grande
                 </>
               );
