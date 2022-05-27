@@ -1,3 +1,4 @@
+import moment from "moment";
 import { store } from "../../context/store";
 import { isset, empty, log } from "../../utils/common";
 
@@ -10,12 +11,26 @@ store.on("updateOrders", (o) => {
     store.set("orders_totals", {});
     store.emit("updateOrdersTotals", {});
   } else {
+    const perItem = {};
+
+    let firstBotTrade;
+    let lastBotTrade;
+    let initialBalanceBot=0;
+    const botFloatingOrders=[];
+
     let maxLoser;
     let maxWinner;
+    let maxFloatingWinner;
+    let maxFloatingLoser;
     let loser = 0;
     let winner = 0;
+    let floatingWinner = 0;
+    let floatingLoser = 0;
 
+    let totalFloatingProfit = 0;
     let totalProfit = 0;
+    let totalSwap = 0;
+    let totalSize = 0;
     let grossProfit = 0;
     let grossLoss = 0;
 
@@ -33,13 +48,16 @@ store.on("updateOrders", (o) => {
     let totalDeposits = 0;
     let initialDeposit;
     const deposits = [];
-
+    const floatingOrders = [];
     const longs = [];
     const shorts = [];
 
     //sum
     const sumDeposits = (p) => (totalDeposits = totalDeposits * 1 + p * 1);
+    const sumNetProfitFloating = (p) => (totalFloatingProfit = totalFloatingProfit * 1 + p * 1);
     const sumNetProfit = (p) => (totalProfit = totalProfit * 1 + p * 1);
+    const sumNetSwap = (p) => (totalSwap = totalSwap * 1 + p * 1);
+    const sumNetSize = (p) => (totalSize = totalSize * 1 + p * 1);
     const sumGrossProfit = (p) => (grossProfit = grossProfit * 1 + p * 1);
     const sumGrossLoss = (p) => (grossLoss = grossLoss * 1 + p * 1);
     //counters
@@ -49,10 +67,24 @@ store.on("updateOrders", (o) => {
     const countLongPositions = () => totalLongPositions++;
     const countShortPositions = () => totalShortPositions++;
 
+    const topFloatingGainer = (pl, order) => {
+      if (!maxFloatingWinner || floatingWinner < pl) {
+        maxFloatingWinner = order;
+        floatingWinner = pl;
+      }
+    };
+
     const topGainer = (pl, order) => {
       if (!maxWinner || winner < pl) {
         maxWinner = order;
         winner = pl;
+      }
+    };
+
+    const topFloatingLoser = (pl, order) => {
+      if (!maxFloatingLoser || floatingLoser < pl) {
+        maxFloatingLoser = order;
+        floatingLoser = pl;
       }
     };
 
@@ -106,16 +138,63 @@ store.on("updateOrders", (o) => {
         continue;
       }
 
+      //initiate item 
+      perItem[order.item] = perItem[order.item] ?? {};
+
+      if (!order.closeTime || order.closeTime.indexOf("1970") !== -1)
+        floatingOrders.push(order);
+
+      if (
+        isset(order.magicNumber) 
+        && 
+        (
+          !empty(order.magicNumber)
+          || order.comment == "BenderFX_AgressiveFibo_60"
+        )
+      ) {
+        if (!order.closeTime || order.closeTime.indexOf("1970") !== -1)
+          botFloatingOrders.push(order);
+        
+        if (!firstBotTrade) {
+          firstBotTrade = order;
+          initialBalanceBot = totalDeposits + totalProfit;
+        } else if (moment(order.openTime).isBefore(firstBotTrade.openTime)) {
+          firstBotTrade = order;
+        }
+        if (!lastBotTrade) {
+          lastBotTrade = order;
+        } else if (moment(order.openTime).isAfter(lastBotTrade.openTime)) {
+          lastBotTrade = order;
+        }
+      }
+      console.log(
+        "closeTime",
+        order.ticket,
+        order.closeTime.indexOf("1970") !== -1
+      );
+
       const profit_lose =
         order.profit * 1 + order.commission * 1 + order.swap * 1;
 
       sumNetProfit(profit_lose);
+      sumNetSwap(order.swap);
+      sumNetSize(order.size);
+      
+      if (!order.closeTime || order.closeTime.indexOf("1970") !== -1) {
+        sumNetProfitFloating(profit_lose);
+      }
+
       countPositions();
 
       if (profit_lose > 0) {
         sumGrossProfit(profit_lose);
         countGainers();
         topGainer(profit_lose, order);
+        
+        if (!order.closeTime || order.closeTime.indexOf("1970") !== -1) {
+          topFloatingGainer(profit_lose, order);
+        }
+
         hhProfitLoss = Math.max(hhProfitLoss, totalProfit);
 
         resetConsecutiveLoser();
@@ -127,6 +206,11 @@ store.on("updateOrders", (o) => {
         sumGrossLoss(profit_lose);
         countLosers();
         topLoser(profit_lose, order);
+        
+        if (!order.closeTime || order.closeTime.indexOf("1970") !== -1) {
+          topFloatingLoser(profit_lose, order);
+        }
+
         hlProfitLoss = Math.min(hlProfitLoss, totalProfit);
 
         resetConsecutiveWinner();
@@ -142,10 +226,25 @@ store.on("updateOrders", (o) => {
             totalDeposits + hhProfitLoss <= 0
               ? 100
               : (100 * mdd) / (totalDeposits + hhProfitLoss);
-        }
+        }        
       }
 
       order.pl = profit_lose;
+
+      
+      if (!isset(perItem[order.item])) perItem[order.item] = {};
+      if (!isset(perItem[order.item].orders)) perItem[order.item].orders = [];
+
+      perItem[order.item].orders.push(order);
+
+      perItem[order.item].profit = !isset(perItem[order.item].profit)
+        ? profit_lose
+        : perItem[order.item].profit * 1 + profit_lose * 1;
+
+
+      perItem[order.item].profitPercent = !isset(perItem[order.item].profitPercent)
+        ? parseFloat( perItem[order.item].profit / totalProfit * 100 ).toFixed(2)
+        : perItem[order.item].profitPercent = parseFloat( (perItem[order.item].profit / totalProfit) * 100 ).toFixed(2);
 
       o[i] = order;
     }
@@ -160,12 +259,20 @@ store.on("updateOrders", (o) => {
     const balance = totalDeposits + totalProfit;
 
     const totals = {
-      account:o.account,
+      account: o.account,
       balance,
 
+      //first and last bot order opened
+      firstBotTrade,
+      lastBotTrade,
+      initialBalanceBot,
+      botFloatingOrders,
       grossProfit,
       grossLoss,
+      totalFloatingProfit,
       totalProfit,
+      totalSwap,
+      totalSize,
       profit_factor,
       avg_profit_factor,
       risk_factor,
@@ -177,6 +284,7 @@ store.on("updateOrders", (o) => {
 
       consecutiveLosers,
       consecutiveWinners,
+      perItem,
 
       totalGainers,
       totalLosers,
@@ -186,9 +294,12 @@ store.on("updateOrders", (o) => {
 
       longs,
       shorts,
+      floatingOrders,
 
       maxLoser,
       maxWinner,
+      maxFloatingWinner,
+      maxFloatingLoser,
 
       initialDeposit,
       deposits,

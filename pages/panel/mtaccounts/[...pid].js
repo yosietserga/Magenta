@@ -21,7 +21,7 @@ import {
 
 import InputText from "../../../components/layout/fields/inputText";
 import FieldCustomer from "../../../components/mtaccounts/fields/customerId";
-import FieldRisk from "../../../components/mtaccounts/fields/risk";
+import FieldRisk from "../../../components/mtaccounts/fields/risky";
 import FieldComments from "../../../components/mtaccounts/fields/comments";
 import FieldPlatform from "../../../components/mtaccounts/fields/platform";
 import FieldWorkstation from "../../../components/mtaccounts/fields/workstation";
@@ -31,7 +31,9 @@ import FieldStatus from "../../../components/mtaccounts/fields/status";
 import FieldLastname from "../../../components/mtaccounts/fields/lastname";
 import FieldServer from "../../../components/mtaccounts/fields/server";
 import FieldUsername from "../../../components/mtaccounts/fields/username";
+import FieldAccount from "../../../components/mtaccounts/fields/account";
 import FieldPassword from "../../../components/mtaccounts/fields/password";
+import FieldEmail from "../../../components/mtaccounts/fields/email";
 
 const DD = (props) => {
 
@@ -136,12 +138,6 @@ const actions = {
           value: props?.data?.balance ?? "",
         },
         {
-          label: "Account Number",
-          field: "account",
-          key: "account",
-          value: props?.data?.account ?? "",
-        },
-        {
           label: "Account Company",
           field: "company",
           key: "company",
@@ -166,18 +162,18 @@ const actions = {
           )}
           <hr />
           <FieldCustomer value={props.customerId} handler={handler} />
+          <FieldEmail value={props.email} handler={handler} />
           <FieldFirstname value={props.firstname} handler={handler} />
           <FieldLastname value={props.lastname} handler={handler} />
           <FieldPlatform value={props.platform} handler={handler} />
           <FieldWorkstation value={props.workstation} handler={handler} />
-          <FieldRisk value={props.risk} handler={handler} />
+          <FieldRisk value={props.risky} handler={handler} />
           <FieldCommission value={props.commission} handler={handler} />
           <FieldStatus value={props.status} handler={handler} />
-
           <FieldServer value={props.server} handler={handler} />
+          <FieldAccount value={props.account} handler={handler} />
           <FieldUsername value={props.username} handler={handler} />
           <FieldPassword value={props.password} handler={handler} />
-          
           <FieldComments value={props.comments} handler={handler} />
           {disabledFields.map((field) => {
             return (
@@ -188,7 +184,7 @@ const actions = {
                   value={field.value ?? ""}
                   label={field.label}
                   fieldName={field.field}
-                  disabled="true"
+                  disabled={true}
                 />
               </>
             );
@@ -247,12 +243,16 @@ const actions = {
       const {
         firstname,
         lastname,
+        email,
         username,
         password,
+        account,
         server,
         status,
+        platform,
+        workstation,
         commission,
-        risk,
+        risky,
         customerId,
         setEncryptedPwd,
         setFlag,
@@ -282,13 +282,17 @@ const actions = {
         body: JSON.stringify({
           firstname,
           lastname,
+          email,
           username,
           password: encrypted,
+          workstation,
+          platform,
           server,
-          status,
-          risk,
-          commission,
-          customerId,
+          account: parseInt(account),
+          status: parseInt(status),
+          risky: parseInt(risky),
+          customerId: parseInt(customerId),
+          commission: parseInt(commission),
         }),
       });
 
@@ -319,12 +323,16 @@ actions.update.onSubmit = async (e, props) => {
     firstname,
     lastname,
     username,
+    account,
+    email,
     password,
     server,
     status,
     commission,
-    risk,
+    risky,
+    platform,
     customerId,
+    workstation,
     setFlag,
     router,
   } = props;
@@ -342,12 +350,16 @@ actions.update.onSubmit = async (e, props) => {
   let body = {};
   body.firstname = firstname;
   body.lastname = lastname;
+  body.email = email;
   body.username = username;
+  body.account = parseInt(account);
   body.server = server;
-  body.status = status;
-  body.commission = commission;
-  body.risk = risk;
-  body.customerId = customerId;
+  body.platform = platform;
+  body.workstation = workstation;
+  body.commission = parseInt(commission);
+  body.status = parseInt(status);
+  body.risky = parseInt(risky);
+  body.customerId = parseInt(customerId);
   if (password) {
     body.password = encrypt(password);
   }
@@ -394,14 +406,27 @@ export default function MTAccounts(props) {
       ? props.data.customerId
       : 0
   );
-  const [firstname, setFirstName] = useState(
+  const [firstname, setFirstname] = useState(
     props.action == "update" && !!props?.data?.firstname
       ? props.data.firstname
       : ""
   );
-  const [lastname, setLastName] = useState(
+  const [lastname, setLastname] = useState(
     props.action == "update" && !!props?.data?.lastname
       ? props.data.lastname
+      : ""
+  );
+  const [email, setEmail] = useState(
+    props.action == "update" && !!props?.data?.email ? props.data.email : ""
+  );
+  const [workstation, setWorkstation] = useState(
+    props.action == "update" && !!props?.data?.workstation
+      ? props.data.workstation
+      : ""
+  );
+  const [platform, setPlatform] = useState(
+    props.action == "update" && !!props?.data?.platform
+      ? props.data.platform
       : ""
   );
   const [username, setUsername] = useState(
@@ -412,7 +437,11 @@ export default function MTAccounts(props) {
   const [server, setServer] = useState(
     props.action == "update" && !!props?.data?.server
       ? props.data.server
-      : false
+      : ""
+  );
+
+  const [account, setAccount] = useState(
+    props.action == "update" && !!props?.data?.account ? props.data.account : ""
   );
 
   const [commission, setCommission] = useState(
@@ -421,9 +450,15 @@ export default function MTAccounts(props) {
       : 0
   );
 
-  const [risk, setRisk] = useState(
-    props.action == "update" && !!props?.data?.risk
-      ? props.data.risk
+  const [comments, setComments] = useState(
+    props.action == "update" && !!props?.data?.comments
+      ? props.data.comments
+      : ""
+  );
+
+  const [risky, setRisk] = useState(
+    props.action == "update" && !!props?.data?.risky
+      ? props.data.risky
       : 0
   );
 
@@ -449,20 +484,30 @@ export default function MTAccounts(props) {
     setCustomerId,
 
     username,
+    email,
     lastname,
+    comments,
     firstname,
     password,
     encryptedPwd,
     server,
+    workstation,
     status,
-    risk,
+    risky,
     commission,
+    platform,
+    account,
+    setAccount,
     setRisk,
+    setComments,
     setCommission,
     setStatus,
     setUsername,
-    setLastName,
-    setFirstName,
+    setEmail,
+    setLastname,
+    setFirstname,
+    setWorkstation,
+    setPlatform,
     setPassword,
     setEncryptedPwd,
     setServer,

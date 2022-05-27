@@ -38,7 +38,10 @@ export default function InputSelect(props) {
         placeholder={placeholder ?? ""}
         disabled={disabled ?? ""}
       >
-        {options.map(opt => {
+        <option key={"none"} value={0}>
+          Seleccione una opción
+        </option>
+        {options.map((opt) => {
           return (
             <>
               <option key={opt.key} value={opt.value}>

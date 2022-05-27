@@ -77,16 +77,14 @@ export default function MTAccounts(props) {
                 value={item.id}
               />
             </th>
-            <td>{item.name}</td>
+            <td>{item.email}</td>
+            <td>{item.firstname + " "+ item.lastname}</td>
+            <td>{item.company}</td>
             <td>{item.username}</td>
             <td>{item.server}</td>
             <td>{item.status ? `Active` : `Suspended`}</td>
             <td>
-              <Link href={"/panel/mtaccounts/chart/"+item.id} passHref={true}>
-                <Button className="btn btn-default" color="primary">
-                  See Chart
-                </Button>
-              </Link>
+              
               <Button
                 className="btn btn-default"
                 onClick={(e) => {
@@ -153,7 +151,9 @@ export default function MTAccounts(props) {
         <thead>
           <tr>
             <th> </th>
+            <th>Email</th>
             <th>Nombre</th>
+            <th>Empresa</th>
             <th>Usuario</th>
             <th>Servidor</th>
             <th>Status</th>

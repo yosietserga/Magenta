@@ -31,6 +31,7 @@
     "jsonwebtoken": "^8.5.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.23",
+    "moment": "^2.29.3",
     "mt4-zmq-bridge": "^1.2.0",
     "next": "^12.1.6",
     "next-auth": "^3.29.3",

@@ -552,52 +552,62 @@ export async function getServerSideProps({ params }) {
   let action = typeof pid == "object" ? pid[0] : pid;
   let id = typeof pid == "object" ? pid[1] : 0;
   let data = {};
+  try {
+    const r_groups = await fetch(baseurl + "/api/customergroups");
+    let customerGroups = await r_groups.json();
 
-  const r_groups = await fetch(baseurl + "/api/customergroups");
-  let customerGroups = await r_groups.json();
+    if (customerGroups.length === 0) customerGroups = [];
 
-  if (customerGroups.length === 0) customerGroups = [];
+    //TODO:install this in a middleware to check permissions
+    const allowed = ['create', 'update', 'see', 'reports'];
+    if (!allowed.includes( action )) {
+      return {
+        redirect: {
+          destination: "/404",
+          permanent: false,
+        },
+      };
+    }
+    
+    if (action == "update") {
+      let r = await fetch(baseurl + "/api/customers/" + id, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (r.status < 300) {
+        data = await r.json();
+      }
+    }
 
-  //TODO:install this in a middleware to check permissions
-  const allowed = ['create', 'update', 'see', 'reports'];
-  if (!allowed.includes( action )) {
+    if (action == "see") {
+      data = await global.db.customer.findUnique({
+        where: {
+          id: parseInt(id),
+        },
+        include: {
+          mtaccounts: true, // All mtaccounts bound with this customer
+        },
+      });
+      log(data);
+    }
+
     return {
-      redirect: {
-        destination: "/404",
-        permanent: false,
+      props: {
+        action,
+        data: JSON.parse(JSON.stringify(data)),
+        customerGroups,
+      },
+    };
+  } catch (err) {
+    console.log(err);
+    return {
+      props: {
+        action,
+        data: [],
+        customerGroups:[],
       },
     };
   }
-  
-  if (action == "update") {
-    let r = await fetch(baseurl + "/api/customers/" + id, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (r.status < 300) {
-      data = await r.json();
-    }
-  }
-
-  if (action == "see") {
-    data = await global.db.customer.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-      include: {
-        mtaccounts: true, // All mtaccounts bound with this customer
-      },
-    });
-    log(data);
-  }
-
-  return {
-    props: {
-      action,
-      data: JSON.parse(JSON.stringify(data)),
-      customerGroups,
-    },
-  };
 }

@@ -7,7 +7,7 @@ import {
 } from "reactstrap";
 
 export default function InputText(props) {
-  const { handler, value, fieldName, label, placeholder, disabled } = props;
+  const { handler, value, fieldName, label, placeholder, disabled, form } = props;
 
   const [__value, setValue] = useState( value );
 

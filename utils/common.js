@@ -165,6 +165,14 @@ export function ucfirst(str) {
   return f + str.substr(1);
 };
 
+export function ucfsplit(str) {
+  return ucfirst(
+    ucfirst(str.split("_").join(" "))
+      .match(/[A-Z]+(?![a-z])|[A-Z]?[a-z]+|\d+/g)
+      .join(" ")
+  );
+}
+
 export function unique(value, index, self) {
   return self.indexOf(value) === index;
 };

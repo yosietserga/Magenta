@@ -178,12 +178,16 @@ model MTAccount {
   username           String?   @unique
   password           String?
   server             String?
+  firstname          String?
+  lastname           String?
+  company            String?
+  email              String?    @unique
+  phone              String?
   createdAt          DateTime  @default(now())
   status             Int       @default(1)
   account            Int       @unique
   balance            Decimal?  @db.Decimal(10, 2)
   commission_blocked Decimal?  @db.Decimal(10, 2)
-  company            String?
   credit             Decimal?  @db.Decimal(10, 2)
   currency           String?
   customerId         Int
@@ -212,15 +216,18 @@ model MTAccount {
   comments           String?
   commission         Int?
   mtCreateAt         DateTime?
-  customer           Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer           Customer  @relation(fields: [customerId], references: [id])
   orders             MTOrder[]
 
   @@index([name],type:Gist)
   @@index([server],type:Gist)
-  @@index([company],type:Gist)
   @@index([workstation],type:Gist)
   @@index([platform],type:Gist)
   @@index([comments],type:Gist)
+  @@index([firstname, lastname],type:Gist)
+  @@index([company],type:Gist)
+  @@index([email],type:Gist)
+  @@index([phone],type:Gist)
 }
 
 model MTOrder {
