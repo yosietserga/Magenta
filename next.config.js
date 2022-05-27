@@ -8,4 +8,7 @@ module.exports = {
   },
   experimental: { images: { layoutRaw: true } },
   reactStrictMode: true,
+  compiler: {
+    removeConsole: true,
+  },
 };
