@@ -604,6 +604,7 @@ export default function MTAccountsList( props ) {
                 : null;
 
               const ratio = parseFloat(
+                 p.row?.totals_totalPositions / 
                 parseFloat(
                         moment
                           .duration(
@@ -612,7 +613,7 @@ export default function MTAccountsList( props ) {
                             )
                           )
                           .asDays()
-                      ).toFixed(2) / p.row?.totals_totalPositions
+                      ).toFixed(2)
               ).toFixed(2);
 
               return <>{ratio ?? 0}</>;
