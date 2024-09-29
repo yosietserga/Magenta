@@ -48,7 +48,8 @@ function AdminContainer(mainProps) {
   }, [setSession]);
 
   if (!getCookie("accessToken") || !getCookie("uuid")) {
-    signOut();
+    //signOut();
+    console.log("logged out");
   }
 
   store.on("sidebarToggle", (o) => {
